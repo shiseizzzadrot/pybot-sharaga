@@ -2,6 +2,8 @@ import telebot
 import os
 import tempfile
 from docx import Document
+from docx.text.paragraph import Paragraph
+from docx.table import Table, _Cell
 
 token = '8582480612:AAGL3Dg6hYJLKO09jmxROrQ-E4l7yl3HKP4'
 bot = telebot.TeleBot(token)
@@ -80,12 +82,24 @@ def handle_data(message):
         if not data_dict:
             bot.reply_to(message, "Не могу распознать данные. Пожалуйста, используйте формат <b>ключ: значение</b>", parse_mode='HTML')
             return
+        def fill_recursive(element, data): #заполнение всех плейсхолдеров в документе
+            if hasattr(element, 'text') and '{{' in element.text:
+                for key, value in data.items():
+                    ph = '{{' + key + '}}'
+                    if ph in element.text:
+                        element.text = element.text.replace(ph, value)
+            if hasattr(element, 'tables'):
+                for table in element.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            fill_recursive(cell, data)
+                            for para in cell.paragraphs:
+                                fill_recursive(para, data)
         doc = Document(file_path)
-        for paragraph in doc.paragraphs:
-            for key, value in data_dict.items():
-                placeholder = '{{' + key + '}}'
-                if placeholder in paragraph.text:
-                    paragraph.text = paragraph.text.replace(placeholder, value)
+        for para in doc.paragraphs:
+            fill_recursive(para, data_dict)
+        for table in doc.tables:
+            fill_recursive(table, data_dict)
 
         filled_file_path = file_path.replace('.docx', '_filled.docx')
         doc.save(filled_file_path)
