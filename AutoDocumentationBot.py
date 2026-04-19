@@ -82,25 +82,23 @@ def handle_data(message):
         if not data_dict:
             bot.reply_to(message, "Не могу распознать данные. Пожалуйста, используйте формат <b>ключ: значение</b>", parse_mode='HTML')
             return
-        def fill_recursive(element, data): #заполнение всех плейсхолдеров в документе
-            if hasattr(element, 'text') and '{{' in element.text:
-                for key, value in data.items():
-                    ph = f'{{{{{key}}}}}'
-                    if ph in element.text:
-                        element.text = element.text.replace(ph, value)
-            if hasattr(element, 'tables'):
-                for table in element.tables:
-                    for row in table.rows:
-                        for cell in row.cells:
-                            fill_recursive(cell, data)
-                            for para in cell.paragraphs:
-                                fill_recursive(para, data)
         doc = Document(file_path)
-        for para in doc.paragraphs:
-            fill_recursive(para, data_dict)
-        for table in doc.tables:
-            fill_recursive(table, data_dict)
+        def replace_text(element_text, data): #заполнение всех плейсхолдеров в документе
+            for key, value in data.items():
+                ph = f'{{{{{key}}}}}'
+                element_text = element_text.replace(ph, value)
+            return element_text
+        for paragraph in doc.paragraphs:
+            paragraph.text = replace_text(paragraph.text, data_dict)
+        def process_tables(tables, data):
+            for table in tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            paragraph.text = replace_text(paragraph.text, data_dict)
 
+                        process_tables(cell.tables, data)
+        process_tables(doc.tables, data_dict)
         filled_file_path = file_path.replace('.docx', '_filled.docx')
         doc.save(filled_file_path)
 
