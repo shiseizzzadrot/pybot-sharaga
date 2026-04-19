@@ -85,7 +85,7 @@ def handle_data(message):
         def fill_recursive(element, data): #заполнение всех плейсхолдеров в документе
             if hasattr(element, 'text') and '{{' in element.text:
                 for key, value in data.items():
-                    ph = '{{' + key + '}}'
+                    ph = f'{{{{{key}}}}}'
                     if ph in element.text:
                         element.text = element.text.replace(ph, value)
             if hasattr(element, 'tables'):
