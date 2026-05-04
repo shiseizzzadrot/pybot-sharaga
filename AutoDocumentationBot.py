@@ -29,7 +29,12 @@ def help_mes(message):
 
 @bot.message_handler(commands=['tags'])
 def tags_mes(message):
-    bot.send_message(message.chat.id, "Вот какие тэги используются в документах:\n"
+    bot.send_message(message.chat.id, "Вот какие тэги используются в документах:\n" \
+    "<b>ИС УП.01.02</b>\n" \
+    "Аттестационный лист – <code>code_group: Код группы, student_name: ФИО студента, num_course: Номер курса, " \
+    "num_sem: Номер семестра, start_pract: Дата начала учебной практики, end_pract: Дата конца учебной практики, grade: Оценка</code>\n" \
+    "Зачетная ведомость – <code>num: Номер зачетной ведомости, code_group: Код группы, num_course: Номер курса, num_sem: Номер семестра, " \
+    "start_pract: Дата начала учебной практики, end_pract: Дата конца учебной практики, sn1-sn26: ФИО студента, date: Дата проведения зачета</code>\n" \
     #"**Экзаменационная ведомость** - code_group: Код группы, name_group: Наименование группы, student_name: ФИО студента\n"
     "<b>Аттестационный лист</b> - code_group: Код группы, student_name: ФИО студента, start_pract: Дата начала практики, end_pract: Дата конца практики, grade: Оценка\n"
     "<b>Характеристика на студента</b> - num_course: Номер курса, code_group: Код группы, name_spec: Название специальности, student_name: ФИО студента, "
